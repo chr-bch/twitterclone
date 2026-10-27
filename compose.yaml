@@ -1,23 +1,18 @@
-services:
-  postgres:
-    image: postgres:18-alpine
-    environment:
-      POSTGRES_DB: twitterclone
-      POSTGRES_USER: twitterclone
-      POSTGRES_PASSWORD: twitterclone
-    ports:
-      - "127.0.0.1:5433:5432"
+include:
+  - compose.infra.yaml
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.8
-    command: start-dev --import-realm
+services:
+  app:
+    build: .
     environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_HOSTNAME: http://localhost:8180
-      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
-      KC_HEALTH_ENABLED: "true"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/twitterclone
+      SPRING_DATASOURCE_USERNAME: twitterclone
+      SPRING_DATASOURCE_PASSWORD: twitterclone
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/twitterclone/protocol/openid-connect/certs
     ports:
-      - "8180:8080"
-    volumes:
-      - ./keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
