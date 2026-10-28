@@ -27,7 +27,7 @@ const progressColor = computed(() =>
 )
 
 async function submit() {
-  // if (!canSubmit.value) return
+  if (!canSubmit.value) return
   sending.value = true
   error.value = null
   try {
