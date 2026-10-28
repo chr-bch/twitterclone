@@ -16,3 +16,10 @@ services:
         condition: service_healthy
       keycloak:
         condition: service_started
+
+  web:
+    build: frontend
+    ports:
+      - "5173:8080"
+    depends_on:
+      - app
